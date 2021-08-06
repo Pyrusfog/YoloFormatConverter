@@ -2,8 +2,8 @@
 from os import spawnl
 import cv2
 import glob
-import numpy as np
-import os
+
+cv_img = [] ; drawing = False ; mode = True ; z = 1 ; ix,iy = -1,-1
 
 class Teste:
     def __init__(self):
@@ -13,10 +13,13 @@ class Teste:
         self.w_t = str
         self.space = " "
         self.zero = "0"
+        self.index = 0
+        self.roi_number = 1
 
-ed = Teste()
-i= 0
-cv_img = []
+
+def criar_tela():
+    cv2.namedWindow('image',cv2.WINDOW_GUI_NORMAL)
+    cv2.setMouseCallback('image',draw_circle)
 
 def load_images():
     for img in glob.glob("/home/franciscofilho/Makesense_Python/*png"):
@@ -24,14 +27,6 @@ def load_images():
         h,w,_ = n.shape
         cv_img.append(n)
     return cv_img,h,w,_
-
-list_img,h,w,_ = load_images()
-
-drawing = False # true if mouse is pressed
-mode = True # if True, draw rectangle. Press 'm' to toggle to curve
-ix,iy = -1,-1
-z = 1
-ROI_number = 1
 
 def draw_circle(event,x,y,flags,param):
         
@@ -44,9 +39,11 @@ def draw_circle(event,x,y,flags,param):
     elif event == cv2.EVENT_LBUTTONUP:
         drawing = False
         if mode == True:
-            cv2.rectangle(list_img[i],(ix,iy),(x,y),(0,255,0),2)
+            cv2.rectangle(list_img[ed.index],(ix,iy),(x,y),(0,255,0),2)
             print(ix,iy,x,y,w,h)
             print(abs(ix-x))
+            print(ed.index)
+            print(ed.roi_number)
             
             xcenter = (ix + abs(ix-x)/2) / w
             print(ix,abs(ix-x),w)
@@ -59,31 +56,22 @@ def draw_circle(event,x,y,flags,param):
             ed.w_t = "{:.6f}".format(w_t)
             ed.h_t = "{:.6f}".format(h_t)
         
-        with open('/home/franciscofilho/Makesense_Python/image_{}.txt'.format(ROI_number), 'a') as f:
+        with open('/home/franciscofilho/Makesense_Python/image_{}.txt'.format(ed.roi_number), 'a') as f:
             f.write(ed.zero + ed.space + ed.xstring + ed.space + ed.ystring + ed.space + ed.w_t + ed.space + ed.h_t)
             f.write('\n')
                 
-
-    
-
-cv2.namedWindow('image',cv2.WINDOW_GUI_NORMAL)
-cv2.setMouseCallback('image',draw_circle)
-
-
-while(i < len(list_img)):
- cv2.imshow('image',list_img[i])
+def main():
+    criar_tela()
+    while(ed.index < len(list_img)):
+        cv2.imshow('image',list_img[ed.index])
+        k = cv2.waitKey(1) & 0xFF
+        if k == ord(' '):
+            ed.index = ed.index+1
+            ed.roi_number += 1
+        elif k == 27:
+            break
+    cv2.destroyAllWindows()
  
- 
- k = cv2.waitKey(1) & 0xFF
- if k == ord('m'):
-    i = i+1
-    ROI_number += 1
- elif k == 27:
-    break
 
-cv2.destroyAllWindows()  
-
-
-
-
-
+ed = Teste() ; list_img,h,w,_ = load_images()
+main()
