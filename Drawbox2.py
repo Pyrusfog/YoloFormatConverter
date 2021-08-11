@@ -68,37 +68,53 @@ def draw_circle(event,x,y,flags,param):
     global ix,iy,drawing,mode
     
     if event == cv2.EVENT_LBUTTONDOWN:
+        
         drawing = True
         ix,iy = x,y
-
+        
+    
+    elif event == cv2.EVENT_MOUSEMOVE:
+        if drawing == True:
+            a, b = x, y
+            if a != x & b != y:
+                if abs(ix-x) > 5 or abs(iy - y) > 5:
+                    list_img[ed.index] = img2[ed.index].copy()
+                    cv2.rectangle(list_img[ed.index], (ix,iy), (x,y), (255, 0, 0), 2)
 
     elif event == cv2.EVENT_LBUTTONUP:
         drawing = False
         if mode == True:
-            cv2.rectangle(list_img[ed.index],(ix,iy),(x,y),(0,255,0),2)
-            im2 = list_img.copy()
-            # print(ix,iy,x,y,w,h)
-            # print(abs(ix-x))
-            # print(ed.index)
-            # print(ed.roi_number)
-            
-            xcenter = (ix + abs(ix-x)/2) / w
-            print(ix,abs(ix-x),w)
-            ycenter = (iy + abs(iy-y)/2) / h
-            w_t = abs(ix-x) / w
-            h_t = abs(iy-y) / h
+            res = abs(ix-x)
+            print(res)
+            # list_img[ed.index] = img2[ed.index].copy()
+            if abs(ix-x) > 5 or abs(iy - y) > 5:
+                cv2.rectangle(list_img[ed.index],(ix,iy),(x,y),(0,0,255),2)
+                img2[ed.index] = list_img[ed.index].copy()
+                    
+                
+                # print(ix,iy,x,y,w,h)
+                # print(abs(ix-x))
+                # print(ed.index)
+                # print(ed.roi_number)
+                
+                xcenter = (ix + abs(ix-x)/2) / w
+                print(ix,abs(ix-x),w)
+                ycenter = (iy + abs(iy-y)/2) / h
+                w_t = abs(ix-x) / w
+                h_t = abs(iy-y) / h
 
-            ed.xstring = "{:.6f}".format(xcenter)
-            ed.ystring = "{:.6f}".format(ycenter)
-            ed.w_t = "{:.6f}".format(w_t)
-            ed.h_t = "{:.6f}".format(h_t)
+                ed.xstring = "{:.6f}".format(xcenter)
+                ed.ystring = "{:.6f}".format(ycenter)
+                ed.w_t = "{:.6f}".format(w_t)
+                ed.h_t = "{:.6f}".format(h_t)
             
-            
+    
             split_files()
-        with open('/home/francsicofilho/Documentos/Yolo_Format_Teste/{}.txt'.format(ed.filename[ed.index]), 'a') as f:
-            f.write(ed.zero + ed.space + ed.xstring + ed.space + ed.ystring + ed.space + ed.w_t + ed.space + ed.h_t)
-            f.write('\n')
-            print(ed.index)
+        if abs(ix-x) > 5 or abs(iy - y) > 5:
+            with open('/home/francsicofilho/Documentos/Yolo_Format_Teste/{}.txt'.format(ed.filename[ed.index]), 'a') as f:
+                f.write(ed.zero + ed.space + ed.xstring + ed.space + ed.ystring + ed.space + ed.w_t + ed.space + ed.h_t)
+                f.write('\n')
+                print(ed.index)
             
                 
 def main():
@@ -115,5 +131,6 @@ def main():
  
 
 ed = Teste() ; list_img,h,w,_ = load_images()
+img2 = list_img.copy()
 menu()
 
